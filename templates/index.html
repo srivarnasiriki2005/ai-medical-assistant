@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Medical Assistant</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">✚</div>
+    <div>
+      <div class="brand-name">MedAssist <span>AI</span></div>
+      <div class="brand-sub">RAG + ML Platform</div>
+    </div>
+  </div>
+
+  <div class="status-row">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusLabel">Connecting…</span>
+  </div>
+
+  <!-- Tab Navigation -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="chat">💬 Medical Chat</button>
+    <button class="tab-btn" data-tab="train">🧠 Train Model</button>
+    <button class="tab-btn" data-tab="test">🔬 Test &amp; Predict</button>
+  </nav>
+
+  <!-- Quick Questions (chat tab only) -->
+  <div class="quick-qs" id="quickQs">
+    <p class="section-label">Quick Questions</p>
+    <button class="qbtn" data-q="What are the symptoms of hypertension?">🫀 Hypertension symptoms</button>
+    <button class="qbtn" data-q="What is the difference between Type 1 and Type 2 diabetes?">🩸 Type 1 vs Type 2 diabetes</button>
+    <button class="qbtn" data-q="How is asthma treated?">🫁 Asthma treatment</button>
+    <button class="qbtn" data-q="What are signs of a heart attack?">⚠️ Heart attack signs</button>
+    <button class="qbtn" data-q="What medications treat depression?">🧠 Depression medications</button>
+    <button class="qbtn" data-q="What cancer screenings are recommended?">📋 Cancer screenings</button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="disclaimer">⚕️ Not medical advice. Always consult a doctor.</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- ── TAB: CHAT ─────────────────────────────────────────────────────── -->
+  <section class="tab-panel active" id="tab-chat">
+    <div class="panel-header">
+      <h1>Medical Assistant <span class="tag">RAG</span></h1>
+      <p>Ask any medical question — answers are retrieved from the knowledge base</p>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div class="welcome" id="welcomeCard">
+        <div class="welcome-icon">🏥</div>
+        <h2>How can I help you?</h2>
+        <p>Ask a medical question and I'll retrieve relevant knowledge and generate a cited answer.</p>
+        <div class="welcome-features">
+          <div class="wf-item"><span>🔍</span>Retrieval-Augmented Generation</div>
+          <div class="wf-item"><span>🤖</span>Llama 3 via Groq API</div>
+          <div class="wf-item"><span>📎</span>Source citations included</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-bar">
+      <div class="input-wrap">
+        <textarea id="questionInput" placeholder="Ask a medical question…" rows="1" maxlength="1000"></textarea>
+        <button id="submitBtn" class="send-btn" title="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+      <div class="input-meta">
+        <span id="charCount">0 / 1000</span>
+        <span>Shift+Enter for new line · Enter to send</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TAB: TRAIN ─────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-train">
+    <div class="panel-header">
+      <h1>Train ML Model <span class="tag">ML</span></h1>
+      <p>Train a medical risk classifier on synthetic patient data using scikit-learn</p>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Dataset Preview -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📊 Dataset Preview</h3>
+          <button class="btn-sm" id="loadDatasetBtn">Load Sample</button>
+        </div>
+        <div id="datasetInfo" class="info-box">Click "Load Sample" to preview the training dataset.</div>
+        <div class="table-wrap" id="datasetTable"></div>
+      </div>
+
+      <!-- Training Config -->
+      <div class="card">
+        <div class="card-header"><h3>⚙️ Training Configuration</h3></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Algorithm</label>
+            <select id="algorithmSelect">
+              <option value="random_forest">Random Forest 🌲</option>
+              <option value="gradient_boosting">Gradient Boosting 🚀</option>
+              <option value="logistic_regression">Logistic Regression 📈</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Training Samples</label>
+            <select id="samplesSelect">
+              <option value="200">200 samples (fast)</option>
+              <option value="500" selected>500 samples (default)</option>
+              <option value="1000">1000 samples (thorough)</option>
+              <option value="2000">2000 samples (comprehensive)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" id="trainBtn">🚀 Train Model</button>
+        <div id="trainLoader" class="loader-bar" hidden>
+          <div class="loader-fill"></div>
+          <span>Training in progress…</span>
+        </div>
+      </div>
+
+      <!-- Training Results -->
+      <div class="card" id="trainResultCard" hidden>
+        <div class="card-header"><h3>📈 Training Results</h3></div>
+        <div id="trainResults"></div>
+      </div>
+
+      <!-- Training History -->
+      <div class="card">
+        <div class="card-header">
+          <h3>🕐 Training History</h3>
+          <button class="btn-sm" id="refreshHistoryBtn">Refresh</button>
+        </div>
+        <div id="historyList" class="info-box">No training runs yet.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── TAB: TEST ──────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-test">
+    <div class="panel-header">
+      <h1>Test &amp; Predict <span class="tag">PREDICT</span></h1>
+      <p>Enter patient vitals to get a risk prediction, or run a batch test evaluation</p>
+    </div>
+
+    <div class="panel-body two-col">
+
+      <!-- Predict -->
+      <div class="card">
+        <div class="card-header"><h3>🔮 Predict Patient Risk</h3></div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Age <span class="hint">(18–85)</span></label>
+            <input type="number" id="p_age" min="18" max="85" value="45" placeholder="45"/>
+          </div>
+          <div class="form-group">
+            <label>BMI <span class="hint">(15–50)</span></label>
+            <input type="number" id="p_bmi" min="15" max="50" step="0.1" value="26.5" placeholder="26.5"/>
+          </div>
+          <div class="form-group">
+            <label>Blood Pressure <span class="hint">(mmHg)</span></label>
+            <input type="number" id="p_bp" min="80" max="200" value="120" placeholder="120"/>
+          </div>
+          <div class="form-group">
+            <label>Glucose <span class="hint">(mg/dL)</span></label>
+            <input type="number" id="p_glucose" min="70" max="300" value="95" placeholder="95"/>
+          </div>
+          <div class="form-group">
+            <label>Cholesterol <span class="hint">(mg/dL)</span></label>
+            <input type="number" id="p_chol" min="120" max="350" value="190" placeholder="190"/>
+          </div>
+          <div class="form-group">
+            <label>Heart Rate <span class="hint">(bpm)</span></label>
+            <input type="number" id="p_hr" min="50" max="110" value="72" placeholder="72"/>
+          </div>
+          <div class="form-group">
+            <label>Smoking</label>
+            <select id="p_smoking">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Diabetes History</label>
+            <select id="p_diabetes">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Quick fill buttons -->
+        <div class="preset-row">
+          <span>Quick fill:</span>
+          <button class="btn-xs" id="presetLow">Low Risk</button>
+          <button class="btn-xs" id="presetMed">Medium Risk</button>
+          <button class="btn-xs" id="presetHigh">High Risk</button>
+        </div>
+
+        <button class="btn-primary" id="predictBtn">🔮 Predict Risk</button>
+
+        <div id="predictResult" hidden></div>
+      </div>
+
+      <!-- Batch Test -->
+      <div class="card">
+        <div class="card-header"><h3>🧪 Batch Evaluation</h3></div>
+        <div class="form-group">
+          <label>Number of Test Patients</label>
+          <select id="testSamplesSelect">
+            <option value="50">50 patients</option>
+            <option value="100" selected>100 patients</option>
+            <option value="200">200 patients</option>
+            <option value="500">500 patients</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="testBtn">🧪 Run Batch Test</button>
+
+        <div id="testResults" hidden></div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ TEMPLATES ════════════════════════════════════════════════════════════ -->
+<template id="tplUser">
+  <div class="msg msg-user">
+    <div class="msg-bubble user-bubble"><p class="msg-text"></p></div>
+    <div class="msg-av user-av">You</div>
+  </div>
+</template>
+
+<template id="tplAI">
+  <div class="msg msg-ai">
+    <div class="msg-av ai-av">✚</div>
+    <div class="msg-body">
+      <div class="msg-bubble ai-bubble"><p class="msg-text"></p></div>
+      <div class="sources-wrap" hidden>
+        <button class="src-toggle" aria-expanded="false">📎 Show sources <span class="src-count"></span></button>
+        <ul class="src-list" hidden></ul>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tplLoader">
+  <div class="msg msg-ai" id="loaderMsg">
+    <div class="msg-av ai-av">✚</div>
+    <div class="msg-bubble ai-bubble">
+      <div class="typing"><span></span><span></span><span></span></div>
+      <p class="loader-txt"></p>
+    </div>
+  </div>
+</template>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
