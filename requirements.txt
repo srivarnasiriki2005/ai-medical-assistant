@@ -13,8 +13,8 @@ requests==2.32.3
 # Environment variables (.env file support)
 python-dotenv==1.0.1
 
-# Vector database (VERIFIED version — 1.8.0 does NOT exist)
-faiss-cpu>=1.8.0
+# Vector database
+faiss-cpu==1.8.0
 
 # Sentence embeddings
 sentence-transformers==3.0.1
@@ -22,13 +22,15 @@ sentence-transformers==3.0.1
 # NumPy <2.0 required (faiss-cpu incompatible with numpy 2.x)
 numpy>=1.24.0,<2.0.0
 
-# Text splitting (no langchain dependency — built-in fallback in app.py)
-# Install only if you want the full langchain splitter:
-# langchain-text-splitters==0.0.1
-
 # ML & Data Science
 scikit-learn==1.5.1
 pandas==2.2.2
 
 # PDF support
 pypdf==4.3.1
+
+# Required by sentence-transformers
+torch==2.3.1
+transformers==4.44.0
+huggingface-hub==0.24.6
+
